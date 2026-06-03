@@ -4,19 +4,14 @@ import {
   Bell, Shield, ActivitySquare, Trophy, AlertTriangle, CheckCircle2, Eye, Save, Clock
 } from 'lucide-react';
 
-export default function Profile({ setCurrentView, userName, highContrast, toggleHighContrast }) {
-  const [waterGoal, setWaterGoal] = useState(2500);
+export default function Profile({ 
+  setCurrentView, userName, highContrast, toggleHighContrast,
+  waterGoal, setWaterGoal, exercises, setExercises // <-- Recebendo as props de edição
+}) {
   const [notifications, setNotifications] = useState(true);
   const [waterInterval, setWaterInterval] = useState('60'); 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
-
-  const [exercises, setExercises] = useState([
-    { id: 1, name: 'Calistenia', selected: true, duration: 60 },
-    { id: 2, name: 'Musculação', selected: false, duration: 45 },
-    { id: 3, name: 'Corrida', selected: false, duration: 30 },
-  ]);
-
   const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
 
   const triggerFeedback = (msg) => {
@@ -87,7 +82,7 @@ export default function Profile({ setCurrentView, userName, highContrast, toggle
           
           <form onSubmit={handleSavePreferences}>
             <label className="block text-sm font-medium mb-1">Meta de Água (ml)</label>
-            <input type="number" value={waterGoal} onChange={(e) => setWaterGoal(e.target.value)}
+            <input type="number" value={waterGoal} onChange={(e) => setWaterGoal(Number(e.target.value))}
               className={`w-full p-3 rounded-xl border mb-4 outline-none focus:ring-2 ${highContrast ? 'bg-black border-yellow-400 text-white focus:ring-yellow-500' : 'bg-gray-50 border-gray-300 focus:ring-blue-500'}`} />
 
             <label className="block text-sm font-medium mb-2">Meus Exercícios & Tempo</label>

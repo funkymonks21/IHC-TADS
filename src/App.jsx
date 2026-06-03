@@ -17,11 +17,21 @@ export default function App() {
   const [showNotification, setShowNotification] = useState(false);
 
   // ==========================================
-  // ESTADO GLOBAL DO SISTEMA (Substitui o BD)
+  // ESTADO GLOBAL (Dados de Progresso)
   // ==========================================
   const [waterIntake, setWaterIntake] = useState(750);
   const [workoutDone, setWorkoutDone] = useState(false);
   
+  // ==========================================
+  // ESTADO GLOBAL (Preferências do Usuário) <-- NOVO AQUI
+  // ==========================================
+  const [waterGoal, setWaterGoal] = useState(2500);
+  const [exercises, setExercises] = useState([
+    { id: 1, name: 'Calistenia', selected: true, duration: 60 },
+    { id: 2, name: 'Musculação', selected: false, duration: 45 },
+    { id: 3, name: 'Corrida', selected: false, duration: 30 },
+  ]);
+
   const [activities, setActivities] = useState([
     { id: 1, type: 'water', title: 'Copo d\'água', detail: '250ml', time: '10:30', dateGroup: 'Hoje' },
     { id: 2, type: 'water', title: 'Garrafa', detail: '500ml', time: '09:15', dateGroup: 'Hoje' },
@@ -116,6 +126,7 @@ export default function App() {
           <AquafyteDashboard 
             setCurrentView={setCurrentView} userName={userName} highContrast={highContrast} toggleHighContrast={toggleHighContrast} simulateNotification={simulateNotification}
             waterIntake={waterIntake} workoutDone={workoutDone} addWaterRecord={addWaterRecord} addWorkoutRecord={addWorkoutRecord}
+            waterGoal={waterGoal} exercises={exercises} // <-- Passando as preferências pro Dash
           />
         )}
         {currentView === 'history' && (
@@ -130,7 +141,10 @@ export default function App() {
           />
         )}
         {currentView === 'profile' && (
-          <Profile setCurrentView={setCurrentView} userName={userName} highContrast={highContrast} toggleHighContrast={toggleHighContrast} />
+          <Profile 
+            setCurrentView={setCurrentView} userName={userName} highContrast={highContrast} toggleHighContrast={toggleHighContrast} 
+            waterGoal={waterGoal} setWaterGoal={setWaterGoal} exercises={exercises} setExercises={setExercises} // <-- Passando pro Perfil editar
+          />
         )}
       </div>
     </main>

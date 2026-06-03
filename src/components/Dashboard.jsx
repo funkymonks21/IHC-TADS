@@ -6,12 +6,13 @@ import {
 
 export default function AquafyteDashboard({ 
   setCurrentView, userName, highContrast, toggleHighContrast, simulateNotification,
-  waterIntake, workoutDone, addWaterRecord, addWorkoutRecord
+  waterIntake, workoutDone, addWaterRecord, addWorkoutRecord,
+  waterGoal, exercises // <-- Recebendo as preferências
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
 
-  const waterGoal = 2500;
+  // A PORCENTAGEM AGORA É DINÂMICA BASEADA NA META DO USUÁRIO
   const waterPercent = Math.min(Math.round((waterIntake / waterGoal) * 100), 100);
   const workoutPercent = workoutDone ? 100 : 0;
 
@@ -26,9 +27,10 @@ export default function AquafyteDashboard({
     setShowMenu(false);
   };
 
-  const handleAddWorkout = () => {
-    addWorkoutRecord('Calistenia', 60);
-    triggerFeedback('Treino salvo! 💪');
+  // O TREINO AGORA RECEBE O NOME E O TEMPO QUE O USUÁRIO DEFINIU
+  const handleAddWorkout = (name, duration) => {
+    addWorkoutRecord(name, duration);
+    triggerFeedback(`Treino de ${name} salvo! 💪`);
     setShowMenu(false);
   };
 
@@ -113,6 +115,7 @@ export default function AquafyteDashboard({
         </div>
       </main>
 
+      {/* OVERLAY MENU INFERIOR - AGORA DINÂMICO! */}
       {showMenu && (
         <div className="absolute inset-0 bg-black bg-opacity-60 z-40 flex items-end justify-center">
           <div className={`w-full rounded-t-3xl p-6 pb-24 animate-slide-up ${highContrast ? 'bg-black border-t-4 border-yellow-400' : 'bg-white'}`}>
@@ -120,14 +123,23 @@ export default function AquafyteDashboard({
               <h3 className={`text-lg font-bold ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>O que vamos registrar?</h3>
               <button onClick={() => setShowMenu(false)} className={`p-2 rounded-full ${highContrast ? 'bg-gray-800 text-yellow-400' : 'bg-gray-100'}`}><X className="w-5 h-5"/></button>
             </div>
+            
             <button onClick={() => handleAddWater(350)} className={`w-full flex items-center p-4 rounded-2xl mb-3 text-left transition-colors ${highContrast ? 'bg-transparent border-2 border-yellow-400 text-white' : 'bg-blue-50 hover:bg-blue-100'}`}>
               <Droplet className={`w-6 h-6 mr-4 ${highContrast ? 'text-yellow-400' : 'text-blue-500'}`} />
               <div><p className="font-bold">Água Personalizada</p><p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>Registrar outro volume</p></div>
             </button>
-            <button onClick={handleAddWorkout} className={`w-full flex items-center p-4 rounded-2xl text-left transition-colors ${highContrast ? 'bg-transparent border-2 border-yellow-400 text-white' : 'bg-orange-50 hover:bg-orange-100'}`}>
-              <Dumbbell className={`w-6 h-6 mr-4 ${highContrast ? 'text-yellow-400' : 'text-orange-500'}`} />
-              <div><p className="font-bold">Treino (Calistenia)</p><p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>Completar meta de hoje</p></div>
-            </button>
+
+            {/* GERA UM BOTÃO PARA CADA EXERCÍCIO QUE O USUÁRIO DEIXOU MARCADO NO PERFIL */}
+            {exercises.filter(ex => ex.selected).map(ex => (
+              <button 
+                key={ex.id} 
+                onClick={() => handleAddWorkout(ex.name, ex.duration)} 
+                className={`w-full flex items-center p-4 rounded-2xl mb-3 text-left transition-colors ${highContrast ? 'bg-transparent border-2 border-yellow-400 text-white' : 'bg-orange-50 hover:bg-orange-100'}`}
+              >
+                <Dumbbell className={`w-6 h-6 mr-4 ${highContrast ? 'text-yellow-400' : 'text-orange-500'}`} />
+                <div><p className="font-bold">Treino ({ex.name})</p><p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>{ex.duration} min planejados</p></div>
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -142,14 +154,8 @@ export default function AquafyteDashboard({
         <button className={`flex flex-col items-center ${highContrast ? 'font-bold' : 'text-indigo-600'}`}><Home className="w-6 h-6"/><span className="text-[10px] mt-1">Hoje</span></button>
         <button onClick={() => setCurrentView('history')} className="flex flex-col items-center hover:text-indigo-600 transition-colors"><Activity className="w-6 h-6"/><span className="text-[10px] mt-1">Histórico</span></button>
         <div className="w-10"></div>
-        <button onClick={() => setCurrentView('statistics')} className="flex flex-col items-center hover:text-indigo-600 transition-colors">
-          <BarChart2 className="w-6 h-6"/>
-          <span className="text-[10px] mt-1">Gráficos</span>
-        </button>
-        <button onClick={() => setCurrentView('profile')} className="flex flex-col items-center hover:text-indigo-600 transition-colors">
-          <User className="w-6 h-6"/>
-          <span className="text-[10px] mt-1">Perfil</span>
-        </button>
+        <button onClick={() => setCurrentView('statistics')} className="flex flex-col items-center hover:text-indigo-600 transition-colors"><BarChart2 className="w-6 h-6"/><span className="text-[10px] mt-1">Gráficos</span></button>
+        <button onClick={() => setCurrentView('profile')} className="flex flex-col items-center hover:text-indigo-600 transition-colors"><User className="w-6 h-6"/><span className="text-[10px] mt-1">Perfil</span></button>
       </nav>
     </div>
   );
