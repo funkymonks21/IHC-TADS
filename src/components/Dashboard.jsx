@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { 
   Home, Activity, BarChart2, User, LogOut, 
-  CheckCircle2, Droplet, Dumbbell, X, Plus, Eye 
+  CheckCircle2, Droplet, Dumbbell, X, Plus, Eye, AlertTriangle // <-- AlertTriangle adicionado
 } from 'lucide-react';
 
 export default function AquafyteDashboard({ 
   setCurrentView, userName, highContrast, toggleHighContrast, simulateNotification,
   waterIntake, workoutDone, addWaterRecord, addWorkoutRecord,
-  waterGoal, exercises // <-- Recebendo as preferências
+  waterGoal, exercises 
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  
+  // NOVO ESTADO PARA O MODAL DE SAIR
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // A PORCENTAGEM AGORA É DINÂMICA BASEADA NA META DO USUÁRIO
   const waterPercent = Math.min(Math.round((waterIntake / waterGoal) * 100), 100);
   const workoutPercent = workoutDone ? 100 : 0;
 
@@ -27,7 +29,6 @@ export default function AquafyteDashboard({
     setShowMenu(false);
   };
 
-  // O TREINO AGORA RECEBE O NOME E O TEMPO QUE O USUÁRIO DEFINIU
   const handleAddWorkout = (name, duration) => {
     addWorkoutRecord(name, duration);
     triggerFeedback(`Treino de ${name} salvo! 💪`);
@@ -53,7 +54,8 @@ export default function AquafyteDashboard({
           <button onClick={toggleHighContrast} aria-label="Alternar contraste" className={`p-2 rounded-full transition-all focus:outline-none focus:ring-2 ${highContrast ? 'bg-yellow-400 text-black focus:ring-white' : 'bg-gray-100 text-gray-500 hover:text-blue-600'}`}>
             <Eye className="w-5 h-5" aria-hidden="true" />
           </button>
-          <button onClick={() => setCurrentView('unlogged')} aria-label="Sair da conta" className={`p-2 rounded-full transition-all focus:outline-none focus:ring-2 ${highContrast ? 'text-yellow-400 border-2 border-transparent' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}>
+          {/* BOTÃO DE SAIR AGORA ABRE O MODAL */}
+          <button onClick={() => setShowLogoutModal(true)} aria-label="Sair da conta" className={`p-2 rounded-full transition-all focus:outline-none focus:ring-2 ${highContrast ? 'text-yellow-400 border-2 border-transparent focus:border-yellow-400' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}>
             <LogOut className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
@@ -70,7 +72,7 @@ export default function AquafyteDashboard({
       </div>
 
       <main className="p-6 pb-32">
-        <div className={`flex justify-between items-center p-6 rounded-3xl shadow-sm mb-8 ${highContrast ? 'bg-black border-2 border-yellow-400' : 'bg-white'}`}>
+        <div id="tour-progress" className={`flex justify-between items-center p-6 rounded-3xl shadow-sm mb-8 ${highContrast ? 'bg-black border-2 border-yellow-400' : 'bg-white'}`}>
           <div className="flex flex-col items-center">
             <div className="relative w-28 h-28 flex items-center justify-center mb-2">
               <svg className="absolute w-full h-full transform -rotate-90">
@@ -102,7 +104,7 @@ export default function AquafyteDashboard({
           </div>
         </div>
 
-        <div className="mb-6">
+        <div id="tour-quick-add" className="mb-6">
           <h2 className={`text-sm font-bold mb-4 uppercase tracking-wider ${highContrast ? 'text-yellow-400' : 'text-gray-800'}`}>Hidratação Rápida</h2>
           <div className="flex gap-4">
             <button onClick={() => handleAddWater(250)} className={`flex-1 py-4 rounded-2xl flex flex-col items-center active:scale-95 transition-colors focus:outline-none focus:ring-4 ${highContrast ? 'bg-transparent border-2 border-yellow-400 text-yellow-400 focus:ring-white' : 'bg-blue-100 hover:bg-blue-200 text-blue-700 focus:ring-blue-500'}`}>
@@ -115,7 +117,7 @@ export default function AquafyteDashboard({
         </div>
       </main>
 
-      {/* OVERLAY MENU INFERIOR - AGORA DINÂMICO! */}
+      {/* OVERLAY MENU INFERIOR */}
       {showMenu && (
         <div className="absolute inset-0 bg-black bg-opacity-60 z-40 flex items-end justify-center">
           <div className={`w-full rounded-t-3xl p-6 pb-24 animate-slide-up ${highContrast ? 'bg-black border-t-4 border-yellow-400' : 'bg-white'}`}>
@@ -123,13 +125,11 @@ export default function AquafyteDashboard({
               <h3 className={`text-lg font-bold ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>O que vamos registrar?</h3>
               <button onClick={() => setShowMenu(false)} className={`p-2 rounded-full ${highContrast ? 'bg-gray-800 text-yellow-400' : 'bg-gray-100'}`}><X className="w-5 h-5"/></button>
             </div>
-            
             <button onClick={() => handleAddWater(350)} className={`w-full flex items-center p-4 rounded-2xl mb-3 text-left transition-colors ${highContrast ? 'bg-transparent border-2 border-yellow-400 text-white' : 'bg-blue-50 hover:bg-blue-100'}`}>
               <Droplet className={`w-6 h-6 mr-4 ${highContrast ? 'text-yellow-400' : 'text-blue-500'}`} />
               <div><p className="font-bold">Água Personalizada</p><p className={`text-sm ${highContrast ? 'text-gray-400' : 'text-gray-500'}`}>Registrar outro volume</p></div>
             </button>
 
-            {/* GERA UM BOTÃO PARA CADA EXERCÍCIO QUE O USUÁRIO DEIXOU MARCADO NO PERFIL */}
             {exercises.filter(ex => ex.selected).map(ex => (
               <button 
                 key={ex.id} 
@@ -144,13 +144,28 @@ export default function AquafyteDashboard({
         </div>
       )}
 
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50">
+      {/* NOVO: MODAL DE CONFIRMAÇÃO DE SAÍDA */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-sm rounded-3xl p-6 text-center animate-slide-up ${highContrast ? 'bg-black border-4 border-yellow-400' : 'bg-white'}`}>
+            <AlertTriangle className={`w-12 h-12 mx-auto mb-4 ${highContrast ? 'text-yellow-400' : 'text-red-500'}`} aria-hidden="true" />
+            <h3 className={`text-xl font-bold mb-2 ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>Desconectar</h3>
+            <p className={`mb-6 text-sm ${highContrast ? 'text-white' : 'text-gray-500'}`}>Tem certeza que deseja desconectar e sair?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowLogoutModal(false)} className={`flex-1 py-3 rounded-xl font-bold focus:outline-none focus:ring-4 ${highContrast ? 'border-2 border-white text-white focus:ring-white' : 'bg-gray-100 focus:ring-gray-300'}`}>Cancelar</button>
+              <button onClick={() => { setShowLogoutModal(false); setCurrentView('unlogged'); }} className={`flex-1 py-3 rounded-xl font-bold focus:outline-none focus:ring-4 ${highContrast ? 'bg-red-600 text-white focus:ring-white' : 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-300'}`}>Sim, sair</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div id="tour-fab" className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50">
         <button onClick={() => setShowMenu(!showMenu)} className={`text-white p-4 rounded-full shadow-xl transition-all duration-300 ${highContrast ? (showMenu ? 'bg-red-600' : 'bg-yellow-400 text-black border-2 border-black') : (showMenu ? 'bg-red-500 rotate-45' : 'bg-indigo-600 hover:scale-105 active:scale-95')}`}>
           <Plus className={`w-8 h-8 ${showMenu && !highContrast ? 'rotate-45' : ''}`} />
         </button>
       </div>
 
-      <nav className={`absolute bottom-0 w-full flex justify-between px-6 py-3 z-30 ${highContrast ? 'bg-black border-t-2 border-yellow-400 text-yellow-400' : 'bg-white border-t text-gray-400'}`}>
+      <nav id="tour-nav" className={`absolute bottom-0 w-full flex justify-between px-6 py-3 z-30 ${highContrast ? 'bg-black border-t-2 border-yellow-400 text-yellow-400' : 'bg-white border-t text-gray-400'}`}>
         <button className={`flex flex-col items-center ${highContrast ? 'font-bold' : 'text-indigo-600'}`}><Home className="w-6 h-6"/><span className="text-[10px] mt-1">Hoje</span></button>
         <button onClick={() => setCurrentView('history')} className="flex flex-col items-center hover:text-indigo-600 transition-colors"><Activity className="w-6 h-6"/><span className="text-[10px] mt-1">Histórico</span></button>
         <div className="w-10"></div>

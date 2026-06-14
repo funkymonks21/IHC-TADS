@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { 
   Home, Activity, BarChart2, User, LogOut, Settings, 
-  Bell, Shield, ActivitySquare, Trophy, AlertTriangle, CheckCircle2, Eye, Save, Clock
+  Bell, Shield, ActivitySquare, Trophy, AlertTriangle, CheckCircle2, Eye, Save, Clock, PlayCircle
 } from 'lucide-react';
 
 export default function Profile({ 
   setCurrentView, userName, highContrast, toggleHighContrast,
-  waterGoal, setWaterGoal, exercises, setExercises // <-- Recebendo as props de edição
+  waterGoal, setWaterGoal, exercises, setExercises, startTour // <-- Recebendo o startTour aqui!
 }) {
   const [notifications, setNotifications] = useState(true);
   const [waterInterval, setWaterInterval] = useState('60'); 
@@ -43,9 +43,10 @@ export default function Profile({
   };
 
   return (
-    <div className={`max-w-md mx-auto min-h-screen relative font-sans pb-20 transition-colors duration-300
+    <div className={`max-w-md mx-auto min-h-screen relative font-sans pb-24 transition-colors duration-300
       ${highContrast ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'}`}>
       
+      {/* HEADER */}
       <header className={`px-6 pt-10 pb-6 shadow-sm flex justify-between items-center ${highContrast ? 'bg-black border-b-2 border-yellow-400' : 'bg-white'}`}>
         <div>
           <h1 className={`text-2xl font-bold ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>Meu Perfil</h1>
@@ -56,6 +57,7 @@ export default function Profile({
         </button>
       </header>
 
+      {/* FEEDBACK TOAST */}
       <div aria-live="polite" className="absolute w-full flex justify-center z-50">
         {feedbackMsg && (
           <div className={`top-4 w-[90%] px-4 py-3 rounded-xl flex items-center shadow-lg transition-all ${feedbackMsg.includes('Erro') ? (highContrast ? 'bg-black border-2 border-red-500 text-red-500' : 'bg-red-100 text-red-700') : (highContrast ? 'bg-yellow-400 text-black border-2 border-black' : 'bg-green-100 text-green-700')}`}>
@@ -66,6 +68,8 @@ export default function Profile({
       </div>
 
       <main className="p-6 space-y-6">
+        
+        {/* CARDS DE ESTATÍSTICA RÁPIDA */}
         <section className="flex gap-4">
           <div className={`flex-1 p-4 rounded-2xl shadow-sm text-center border-l-4 ${highContrast ? 'bg-black border-yellow-400 text-white' : 'bg-white border-blue-500'}`}>
             <ActivitySquare className={`w-8 h-8 mx-auto mb-2 ${highContrast ? 'text-yellow-400' : 'text-blue-500'}`} aria-hidden="true" />
@@ -77,6 +81,7 @@ export default function Profile({
           </div>
         </section>
 
+        {/* METAS E PREFERÊNCIAS */}
         <section className={`p-6 rounded-3xl shadow-sm ${highContrast ? 'bg-black border-2 border-yellow-400' : 'bg-white'}`}>
           <h2 className={`font-bold flex items-center mb-4 ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}><Settings className="w-5 h-5 mr-2" aria-hidden="true" /> Metas Diárias</h2>
           
@@ -131,6 +136,24 @@ export default function Profile({
           </form>
         </section>
 
+        {/* AJUDA E TUTORIAL (NOVO!) */}
+        <section className={`p-6 rounded-3xl shadow-sm ${highContrast ? 'bg-black border-2 border-yellow-400' : 'bg-white'}`}>
+          <h2 className={`font-bold flex items-center mb-4 ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>
+            <PlayCircle className="w-5 h-5 mr-2" aria-hidden="true" /> Ajuda & Tutorial
+          </h2>
+          <p className={`text-sm mb-4 ${highContrast ? 'text-gray-300' : 'text-gray-600'}`}>
+            Esqueceu como alguma parte do aplicativo funciona? Veja o nosso tour rápido.
+          </p>
+          <button 
+            onClick={startTour} 
+            className={`w-full py-3 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95 focus:outline-none focus:ring-4
+              ${highContrast ? 'bg-gray-800 text-yellow-400 border border-yellow-400 focus:ring-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100 focus:ring-blue-300'}`}
+          >
+            Refazer Tour do Aplicativo
+          </button>
+        </section>
+
+        {/* SEGURANÇA */}
         <section className={`p-6 rounded-3xl shadow-sm ${highContrast ? 'bg-black border-2 border-yellow-400' : 'bg-white'}`}>
           <h2 className={`font-bold flex items-center mb-4 ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>
             <Shield className="w-5 h-5 mr-2" aria-hidden="true" /> Segurança
@@ -150,17 +173,19 @@ export default function Profile({
           </form>
         </section>
 
-        <button onClick={() => setShowLogoutModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95 mt-8 mb-6 focus:outline-none focus:ring-4 ${highContrast ? 'border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:ring-red-500' : 'bg-red-50 text-red-600 hover:bg-red-100 focus:ring-red-200'}`}>
+        {/* LOGOUT */}
+        <button onClick={() => setShowLogoutModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center transition-all active:scale-95 focus:outline-none focus:ring-4 ${highContrast ? 'border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:ring-red-500' : 'bg-red-50 text-red-600 hover:bg-red-100 focus:ring-red-200'}`}>
           <LogOut className="w-5 h-5 mr-2" aria-hidden="true" /> Sair da Conta
         </button>
       </main>
 
+      {/* MODAL DE SAÍDA */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
           <div className={`w-full max-w-sm rounded-3xl p-6 text-center animate-slide-up ${highContrast ? 'bg-black border-4 border-yellow-400' : 'bg-white'}`}>
             <AlertTriangle className={`w-12 h-12 mx-auto mb-4 ${highContrast ? 'text-yellow-400' : 'text-red-500'}`} aria-hidden="true" />
-            <h3 className={`text-xl font-bold mb-2 ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>Deseja mesmo sair?</h3>
-            <p className={`mb-6 text-sm ${highContrast ? 'text-white' : 'text-gray-500'}`}>Você precisará fazer login novamente para acessar seu diário.</p>
+            <h3 className={`text-xl font-bold mb-2 ${highContrast ? 'text-yellow-400' : 'text-gray-900'}`}>Desconectar</h3>
+            <p className={`mb-6 text-sm ${highContrast ? 'text-white' : 'text-gray-500'}`}>Tem certeza que deseja desconectar e sair?</p>
             <div className="flex gap-3">
               <button onClick={() => setShowLogoutModal(false)} className={`flex-1 py-3 rounded-xl font-bold focus:outline-none focus:ring-4 ${highContrast ? 'border-2 border-white text-white focus:ring-white' : 'bg-gray-100 focus:ring-gray-300'}`}>Cancelar</button>
               <button onClick={() => { setShowLogoutModal(false); setCurrentView('unlogged'); }} className={`flex-1 py-3 rounded-xl font-bold focus:outline-none focus:ring-4 ${highContrast ? 'bg-red-600 text-white focus:ring-white' : 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-300'}`}>Sim, sair</button>
@@ -169,6 +194,7 @@ export default function Profile({
         </div>
       )}
 
+      {/* BOTTOM NAV */}
       <nav className={`fixed bottom-0 w-full max-w-md flex justify-between px-6 py-3 z-30 ${highContrast ? 'bg-black border-t-2 border-yellow-400 text-gray-500' : 'bg-white border-t text-gray-400'}`}>
         <button onClick={() => setCurrentView('dashboard')} className="flex flex-col items-center hover:text-indigo-600 transition-colors"><Home className="w-6 h-6"/><span className="text-[10px] mt-1">Hoje</span></button>
         <button onClick={() => setCurrentView('history')} className="flex flex-col items-center hover:text-indigo-600 transition-colors"><Activity className="w-6 h-6"/><span className="text-[10px] mt-1">Histórico</span></button>
